@@ -1,6 +1,16 @@
 // Importaciones necesarias.
 const express = require('express');
-require('dotenv/config');
+const dotenv = require('dotenv/config');
+const morgan = require('morgan');
+const mongoose = require('mongoose');
+
+////////// CONEXIÓN A MONGODB //////////
+
+// Conectamos con mongoose a través del módulo config.
+mongoose.connect(process.env.CONNECTION_STRING, {dbname: 'eshop-db'})
+    .then(() => console.log('MongoDB Connection is ready.'))
+    .catch(err => console.log('Could not connect to MongoDB.', err));
+
 
 // Definimos una variable de ambiente para /api/v1 del archivo .env.
 const api = process.env.API_URL;
@@ -11,6 +21,9 @@ const app = express();
 // Configuramos Express para que trabaje con datos de tipo JSON y con el middleware urlencoded.
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
+
+// Middleware Morgan para mostrar los GET y POST en consola.
+app.use(morgan('tiny'));
 
 // http://localhost:3000/api/v1/products
 app.get(`${api}/products`, (req, res) => {
