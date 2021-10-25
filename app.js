@@ -3,6 +3,7 @@ const express = require('express');
 const dotenv = require('dotenv/config');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
+const Product = require('./models/product_model')
 
 ////////// CONEXIÓN A MONGODB //////////
 
@@ -26,19 +27,31 @@ app.use(express.urlencoded({extended: true}));
 app.use(morgan('tiny'));
 
 // http://localhost:3000/api/v1/products
-app.get(`${api}/products`, (req, res) => {
-    const product = {
-        id: 1,
-        name: 'hair dresser',
-        image: 'some_url'
+app.get(`${api}/products`, async (req, res) => {
+    const productList = await Product.find();
+
+    if(!productList) {
+        res.status(500).json({success: false})
     }
-    res.send(product);
+    res.send(productList);
 })
 
 app.post(`${api}/products`, (req, res) => {
-    const newProduct = req.body;
-    console.log(newProduct);
-    res.send(newProduct);
+    const product = new Product({
+        name         : req.body.name,
+        image        : req.body.image,
+        countInStock : req.body.countInStock
+    })
+    product.save()
+        .then((createdProduct => {
+            res.status(201).json(createdProduct)
+        }))
+        .catch((err) => {
+            res.status(500).json({
+                error   : err,
+                success : false
+            })
+        })
 })
 
 ////////// CONFIGURACIÓN DEL PUERTO DE EXPRESS //////////
