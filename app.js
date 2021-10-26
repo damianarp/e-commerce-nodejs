@@ -6,6 +6,9 @@ const mongoose = require('mongoose');
 const Product = require('./models/product_model');
 const cors = require('cors');
 
+// Creamos la instancia de la aplicación con Express.
+const app = express();
+
 ////////// HABILITAR CORS //////////
 
 app.use(cors());
@@ -22,9 +25,6 @@ mongoose.connect(process.env.CONNECTION_STRING, {dbname: 'eshop-db'})
     .catch(err => console.log('Could not connect to MongoDB.', err));
 
 ////////////////////////////////////////
-
-// Creamos la instancia de la aplicación con Express.
-const app = express();
 
 // Configuramos Express para que trabaje con datos de tipo JSON y con el middleware urlencoded.
 app.use(express.json());
