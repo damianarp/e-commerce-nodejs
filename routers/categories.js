@@ -52,6 +52,25 @@ router.post('/', async (req, res) => {
     res.status(200).send(category);
 });
 
+////////// HTTP REQUEST PUT //////////
+// Manejamos el put con un async-await.
+router.put('/:id', async (req, res) => {
+    // Creamos una instancia de Category, buscamos por el id y actualizamos los campos.
+    const categoryUpdated = await Category.findByIdAndUpdate(
+        req.params.id,
+        {
+            name    : req.body.name,
+            icon    : req.body.icon,
+            color   : req.body.color
+        },
+        {new: true} // Al hacer el put devuelve la data nueva.
+    );
+    // Si se produce algún error.
+    if(!categoryUpdated) return res.status(404).send('The category cannot be updated.');
+    // Si no se produce ningún error.
+    res.status(200).send(categoryUpdated);
+});
+
 ////////// HTTP REQUEST DELETE //////////
 // Manejamos el delete con una promesa (para hacerlo diferente al async-await).
 router.delete('/:id', (req,res) => {
