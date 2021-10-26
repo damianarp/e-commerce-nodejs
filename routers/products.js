@@ -9,7 +9,8 @@ const router = express.Router();
 ////////// HTTP REQUEST GET //////////
 // En vez de manejar el get con una promesa lo manejamos con async-await.
 router.get(`/`, async (req, res) => {
-    const productList = await Product.find();
+    const productList = await Product.find()
+                                     .select('name image -_id'); // Mostramos solo el nombre y la imagen, excluimos el id que viene por defecto.
 
     // Si se produce un error.
     if(!productList) {
@@ -18,6 +19,23 @@ router.get(`/`, async (req, res) => {
     // Si todo sale bien. Obtenemos la lista de productos.
     res.send(productList);
 })
+
+////////// HTTP REQUEST GET //////////
+// Obtención de un producto a través de su id.
+// En vez de manejar el get con una promesa lo manejamos con async-await.
+router.get(`/:id`, async (req, res) => {
+    const product = await Product.findById(req.params.id);
+
+    // Si se produce un error.
+    if(!product) {
+        return res.status(404).json({
+            success: false,
+            message: 'The product with given ID was not found.'
+        })
+    }
+    // Si todo sale bien. Obtenemos el producto.
+    res.status(200).send(product);
+});
 
 ////////// HTTP REQUEST POST //////////
 router.post(`/`, async (req, res) => {
