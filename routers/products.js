@@ -2,6 +2,7 @@
 const express = require('express');
 const {Product} = require('../models/product_model');
 const {Category} = require('../models/category_model');
+const mongoose = require('mongoose');
 
 // Creamos la ruta.
 const router = express.Router();
@@ -24,9 +25,13 @@ router.get(`/`, async (req, res) => {
 // Obtención de un producto a través de su id.
 // En vez de manejar el get con una promesa lo manejamos con async-await.
 router.get(`/:id`, async (req, res) => {
+    // Primero, debemos validar si el id que estamos pasando tiene el formato correcto que genera MongoDB.
+    if(!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).send('Invalid Product Id.')
+    }
+    // Creamos una instancia de Product y buscamos a través del id.
     const product = await Product.findById(req.params.id)
                                  .populate('category');
-
     // Si se produce un error.
     if(!product) {
         return res.status(404).json({
@@ -40,7 +45,11 @@ router.get(`/:id`, async (req, res) => {
 
 ////////// HTTP REQUEST POST //////////
 router.post(`/`, async (req, res) => {
-    // Primero debemos validar si la categoría del nuevo producto existe o no en la BD.
+    // Primero, debemos validar si el id que estamos pasando tiene el formato correcto que genera MongoDB.
+    if(!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).send('Invalid Product Id.')
+    }
+    // Segundo, debemos validar si la categoría del nuevo producto existe o no en la BD.
     const category = await Category.findById(req.body.category);
     // Si se produce un error.
     if(!category) {
@@ -71,7 +80,11 @@ router.post(`/`, async (req, res) => {
 ////////// HTTP REQUEST PUT //////////
 // Manejamos el put con un async-await.
 router.put('/:id', async (req, res) => {
-    // Primero debemos validar si la categoría del nuevo producto existe o no en la BD.
+    // Primero, debemos validar si el id que estamos pasando tiene el formato correcto que genera MongoDB.
+    if(!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).send('Invalid Product Id.')
+    }
+    // Segundo, debemos validar si la categoría del nuevo producto existe o no en la BD.
     const category = await Category.findById(req.body.category);
     // Si se produce un error.
     if(!category) {
@@ -99,6 +112,35 @@ router.put('/:id', async (req, res) => {
     if(!productUpdated) return res.status(500).send('The product cannot be updated.');
     // Si no se produce ningún error.
     res.status(200).send(productUpdated);
+});
+
+////////// HTTP REQUEST DELETE //////////
+// Manejamos el delete con una promesa (para hacerlo diferente al async-await).
+router.delete('/:id', (req,res) => {
+    // Primero, debemos validar si el id que estamos pasando tiene el formato correcto que genera MongoDB.
+    if(!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).send('Invalid Product Id.')
+    }
+    // Encontramos el producto por el id y lo eliminamos.
+    Product.findByIdAndRemove(req.params.id)
+        .then(product => {
+            // Si encuentra un producto.
+            if(product) {
+                return res.status(200).json({
+                    success: true,
+                    message: `The product '${product.name}' has been deleted!`
+                });
+            } else {
+                // Si no encuentra el producto.
+                return res.status(404).send('Product not found!');
+            }
+        })
+        .catch(err => {
+            return res.status(500).json({
+                success: false,
+                error: err
+            });
+        });
 });
 
 // Exportamos el módulo

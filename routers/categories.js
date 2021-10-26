@@ -1,6 +1,7 @@
 // Importaciones necesarias
 const {Category} = require('../models/category_model');
 const express = require('express');
+const mongoose = require('mongoose');
 
 // Creamos la ruta.
 const router = express.Router();
@@ -8,8 +9,8 @@ const router = express.Router();
 ////////// HTTP REQUEST GET //////////
 // En vez de manejar el get con una promesa lo manejamos con async-await.
 router.get(`/`, async (req, res) => {
+    // Creamos una instancia de Category y buscamos a través del id.
     const categoryList = await Category.find();
-
     // Si se produce un error.
     if(!categoryList) {
         res.status(500).json({success: false})
@@ -22,8 +23,12 @@ router.get(`/`, async (req, res) => {
 // Obtención de una categoría a través de su id.
 // En vez de manejar el get con una promesa lo manejamos con async-await.
 router.get(`/:id`, async (req, res) => {
+    // Primero, debemos validar si el id que estamos pasando tiene el formato correcto que genera MongoDB.
+    if(!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).send('Invalid Category Id.')
+    }
+    // Creamos una instancia de Category y buscamos a través del id.
     const category = await Category.findById(req.params.id);
-
     // Si se produce un error.
     if(!category) {
         return res.status(404).json({
@@ -55,6 +60,10 @@ router.post('/', async (req, res) => {
 ////////// HTTP REQUEST PUT //////////
 // Manejamos el put con un async-await.
 router.put('/:id', async (req, res) => {
+    // Primero, debemos validar si el id que estamos pasando tiene el formato correcto que genera MongoDB.
+    if(!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).send('Invalid Category Id.')
+    }
     // Creamos una instancia de Category, buscamos por el id y actualizamos los campos.
     const categoryUpdated = await Category.findByIdAndUpdate(
         req.params.id,
@@ -74,6 +83,10 @@ router.put('/:id', async (req, res) => {
 ////////// HTTP REQUEST DELETE //////////
 // Manejamos el delete con una promesa (para hacerlo diferente al async-await).
 router.delete('/:id', (req,res) => {
+    // Primero, debemos validar si el id que estamos pasando tiene el formato correcto que genera MongoDB.
+    if(!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).send('Invalid Category Id.')
+    }
     // Encontramos la categoría por el id y la eliminamos.
     Category.findByIdAndRemove(req.params.id)
         .then(category => {
@@ -81,14 +94,11 @@ router.delete('/:id', (req,res) => {
             if(category) {
                 return res.status(200).json({
                     success: true,
-                    message: `The category ${category.name} has been deleted!`
+                    message: `The category '${category.name}' has been deleted!`
                 });
             } else {
                 // Si no encuentra la categoría
-                return res.status(404).json({
-                    success: false,
-                    message: 'Category not found!'
-                });
+                return res.status(404).send('Category not found!');
             }
         })
         .catch(err => {
