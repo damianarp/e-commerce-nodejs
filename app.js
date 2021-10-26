@@ -4,7 +4,15 @@ const dotenv = require('dotenv/config');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
 const Product = require('./models/product_model');
+const cors = require('cors');
 
+////////// HABILITAR CORS //////////
+
+app.use(cors());
+// Cualquier tipo de HTTP Request (GET, POST, PUT, DELETE)
+app.options('*', cors());
+
+////////////////////////////////////
 
 ////////// CONEXIÓN A MONGODB //////////
 
