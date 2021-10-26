@@ -10,7 +10,7 @@ const router = express.Router();
 // En vez de manejar el get con una promesa lo manejamos con async-await.
 router.get(`/`, async (req, res) => {
     const productList = await Product.find()
-                                     .select('name image -_id'); // Mostramos solo el nombre y la imagen, excluimos el id que viene por defecto.
+                                     .populate('category'); // Poblamos el campo category con la data de su model.
 
     // Si se produce un error.
     if(!productList) {
@@ -24,7 +24,8 @@ router.get(`/`, async (req, res) => {
 // Obtención de un producto a través de su id.
 // En vez de manejar el get con una promesa lo manejamos con async-await.
 router.get(`/:id`, async (req, res) => {
-    const product = await Product.findById(req.params.id);
+    const product = await Product.findById(req.params.id)
+                                 .populate('category');
 
     // Si se produce un error.
     if(!product) {
