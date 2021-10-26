@@ -68,5 +68,38 @@ router.post(`/`, async (req, res) => {
     res.status(200).send(product);
 })
 
+////////// HTTP REQUEST PUT //////////
+// Manejamos el put con un async-await.
+router.put('/:id', async (req, res) => {
+    // Primero debemos validar si la categoría del nuevo producto existe o no en la BD.
+    const category = await Category.findById(req.body.category);
+    // Si se produce un error.
+    if(!category) {
+        return res.status(400).send('Invalid Category.')
+    }
+    // Si todo sale bien. Creamos una instancia de Product.
+    const productUpdated = await Product.findByIdAndUpdate(
+        req.params.id,
+        {
+            name            : req.body.name,
+            description     : req.body.description,
+            richDescription : req.body.richDescription,
+            image           : req.body.image,
+            brand           : req.body.brand,
+            price           : req.body.price,
+            category        : req.body.category,
+            countInStock    : req.body.countInStock,
+            rating          : req.body.rating,
+            numReviews      : req.body.numReviews,
+            isFeatured      : req.body.isFeatured
+        },
+        {new: true} // Al hacer el put devuelve la data nueva.
+    );
+    // Si se produce algún error.
+    if(!productUpdated) return res.status(500).send('The product cannot be updated.');
+    // Si no se produce ningún error.
+    res.status(200).send(productUpdated);
+});
+
 // Exportamos el módulo
 module.exports = router;
