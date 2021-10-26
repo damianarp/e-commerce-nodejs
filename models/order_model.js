@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 
 // Definimos un schema.
-const productSchema = mongoose.Schema ({
+const orderSchema = mongoose.Schema ({
     name: String,
     image: String,
     countInStock: {
@@ -11,5 +11,5 @@ const productSchema = mongoose.Schema ({
     }
 })
 
-// Exportamos el modelo 'Product'.
-exports.Product = mongoose.model('Product', productSchema);
+// Exportamos el modelo 'Order'.
+exports.Order = mongoose.model('Order', orderSchema);
