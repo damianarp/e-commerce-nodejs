@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 // Creamos la ruta.
 const router = express.Router();
 
-////////// HTTP REQUEST GET //////////
+////////// HTTP REQUEST GET LISTA DE PRODUCTOS //////////
 // En vez de manejar el get con una promesa lo manejamos con async-await.
 router.get(`/`, async (req, res) => {
     const productList = await Product.find()
@@ -21,7 +21,7 @@ router.get(`/`, async (req, res) => {
     res.send(productList);
 })
 
-////////// HTTP REQUEST GET //////////
+////////// HTTP REQUEST GET PARA UN PRODUCTO //////////
 // Obtención de un producto a través de su id.
 // En vez de manejar el get con una promesa lo manejamos con async-await.
 router.get(`/:id`, async (req, res) => {
@@ -34,13 +34,26 @@ router.get(`/:id`, async (req, res) => {
                                  .populate('category');
     // Si se produce un error.
     if(!product) {
-        return res.status(404).json({
-            success: false,
-            message: 'The product with given ID was not found.'
-        })
+        return res.status(404).send('The product with given ID was not found.');
     }
     // Si todo sale bien. Obtenemos el producto.
     res.status(200).send(product);
+});
+
+////////// HTTP REQUEST GET PARA OBTENER ESTADÍSTICAS //////////
+// Obtención de un producto a través de su id.
+// En vez de manejar el get con una promesa lo manejamos con async-await.
+router.get(`/get/count`, async (req, res) => {
+    // Creamos una instancia de Product y contamos los documentos que contiene.
+    await Product.countDocuments()
+        .then(count => {
+            res.send({
+                productCount: count
+            }).catch(err => {
+                res.status(500).send({message: 'Failed to get the product count', err})
+            })
+        }
+    )
 });
 
 ////////// HTTP REQUEST POST //////////
@@ -126,10 +139,7 @@ router.delete('/:id', (req,res) => {
         .then(product => {
             // Si encuentra un producto.
             if(product) {
-                return res.status(200).json({
-                    success: true,
-                    message: `The product '${product.name}' has been deleted!`
-                });
+                return res.status(200).send(`The product '${product.name}' has been deleted!`);
             } else {
                 // Si no encuentra el producto.
                 return res.status(404).send('Product not found!');

@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 // Creamos la ruta.
 const router = express.Router();
 
-////////// HTTP REQUEST GET //////////
+////////// HTTP REQUEST GET LISTA DE CATEGORÍAS //////////
 // En vez de manejar el get con una promesa lo manejamos con async-await.
 router.get(`/`, async (req, res) => {
     // Creamos una instancia de Category y buscamos a través del id.
@@ -19,7 +19,7 @@ router.get(`/`, async (req, res) => {
     res.status(200).send(categoryList);
 });
 
-////////// HTTP REQUEST GET //////////
+////////// HTTP REQUEST GET PARA UNA CATEGORÍA //////////
 // Obtención de una categoría a través de su id.
 // En vez de manejar el get con una promesa lo manejamos con async-await.
 router.get(`/:id`, async (req, res) => {
@@ -31,10 +31,7 @@ router.get(`/:id`, async (req, res) => {
     const category = await Category.findById(req.params.id);
     // Si se produce un error.
     if(!category) {
-        return res.status(404).json({
-            success: false,
-            message: 'The category with given ID was not found.'
-        })
+        return res.status(404).send('The category with given ID was not found.');
     }
     // Si todo sale bien. Obtenemos la categoría.
     res.status(200).send(category);
@@ -92,10 +89,7 @@ router.delete('/:id', (req,res) => {
         .then(category => {
             // Si encuentra una categoría.
             if(category) {
-                return res.status(200).json({
-                    success: true,
-                    message: `The category '${category.name}' has been deleted!`
-                });
+                return res.status(200).send(`The category '${category.name}' has been deleted!`);
             } else {
                 // Si no encuentra la categoría
                 return res.status(404).send('Category not found!');
