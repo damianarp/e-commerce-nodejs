@@ -47,7 +47,7 @@ router.post('/', async (req, res) => {
     // Guardamos la categoría en la BD y comprobamos si se produce algún error.
     category = await category.save();
     // Si se produce algún error.
-    if(!category) return res.status(404).send('The category cannot be created.');
+    if(!category) return res.status(500).send('The category cannot be created.');
     // Si no se produce ningún error.
     res.status(200).send(category);
 });
@@ -66,7 +66,7 @@ router.put('/:id', async (req, res) => {
         {new: true} // Al hacer el put devuelve la data nueva.
     );
     // Si se produce algún error.
-    if(!categoryUpdated) return res.status(404).send('The category cannot be updated.');
+    if(!categoryUpdated) return res.status(500).send('The category cannot be updated.');
     // Si no se produce ningún error.
     res.status(200).send(categoryUpdated);
 });
@@ -92,7 +92,7 @@ router.delete('/:id', (req,res) => {
             }
         })
         .catch(err => {
-            return res.status(400).json({
+            return res.status(500).json({
                 success: false,
                 error: err
             });
