@@ -15,7 +15,24 @@ router.get(`/`, async (req, res) => {
         res.status(500).json({success: false})
     }
     // Si todo sale bien. Obtenemos la lista de categorías.
-    res.send(categoryList);
+    res.status(200).send(categoryList);
+});
+
+////////// HTTP REQUEST GET //////////
+// Obtención de una categoría a través de su id.
+// En vez de manejar el get con una promesa lo manejamos con async-await.
+router.get(`/:id`, async (req, res) => {
+    const category = await Category.findById(req.params.id);
+
+    // Si se produce un error.
+    if(!category) {
+        return res.status(404).json({
+            success: false,
+            message: 'The category with given ID was not found.'
+        })
+    }
+    // Si todo sale bien. Obtenemos la categoría.
+    res.status(200).send(category);
 });
 
 ////////// HTTP REQUEST POST //////////
@@ -32,7 +49,7 @@ router.post('/', async (req, res) => {
     // Si se produce algún error.
     if(!category) return res.status(404).send('The category cannot be created.');
     // Si no se produce ningún error.
-    res.send(category);
+    res.status(200).send(category);
 });
 
 ////////// HTTP REQUEST DELETE //////////
