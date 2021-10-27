@@ -57,7 +57,15 @@ const productSchema = mongoose.Schema ({
         type: Date,
         default: Date.now        
     }
-})
+});
+
+// Originamos un id virtual para poder usarlo en cualquier otra app. Por lo que se generará un id = _id.
+productSchema.virtual('id').get(function () {
+    return this._id.toHexString();
+});
+productSchema.set('toJSON', {
+    virtuals: true
+});
 
 // Exportamos el modelo 'Product'.
 exports.Product = mongoose.model('Product', productSchema);
