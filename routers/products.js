@@ -41,7 +41,7 @@ router.get(`/:id`, async (req, res) => {
 });
 
 ////////// HTTP REQUEST GET PARA OBTENER ESTADÍSTICAS //////////
-// Obtención de un producto a través de su id.
+// Obtención de cantidad de productos.
 // En vez de manejar el get con una promesa lo manejamos con async-await.
 router.get(`/get/count`, async (req, res) => {
     // Creamos una instancia de Product y contamos los documentos que contiene.
@@ -53,6 +53,24 @@ router.get(`/get/count`, async (req, res) => {
         })
         .catch(err => {
             res.status(500).send({message: 'Failed to get the product count', err})
+        })
+});
+
+////////// HTTP REQUEST GET PARA OBTENER PRODUCTOS PRESENTADOS //////////
+// Obtención de un productos presentados.
+// En vez de manejar el get con una promesa lo manejamos con async-await.
+router.get(`/get/featured/:count`, async (req, res) => {
+    // Declaramos una constante para la cantidad de productos que queremos mostrar en la web. Si se encuentra una cantidad, la mostramos sino retornamos 0.
+    const count = req.params.count ? req.params.count : 0 
+    // Creamos una instancia de Product y obtenemos los productos presentados limitados por count (anteponeoms el + para que se convierta de string a number).
+    const productsFeatured = await Product.find({isFeatured: true})
+        .limit(+count)
+        // Manejamos la promesa.
+        .then(productsFeatured => {
+            res.send(productsFeatured)
+        })
+        .catch(err => {
+            res.status(500).send({message: 'Failed to get the featured product.', err})
         })
 });
 
