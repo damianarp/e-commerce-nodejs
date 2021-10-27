@@ -10,9 +10,17 @@ const router = express.Router();
 ////////// HTTP REQUEST GET LISTA DE PRODUCTOS //////////
 // En vez de manejar el get con una promesa lo manejamos con async-await.
 router.get(`/`, async (req, res) => {
-    const productList = await Product.find()
-                                     .populate('category'); // Poblamos el campo category con la data de su model.
+    // http://localhost:3000/api/v1/products?categories=234234,554383
 
+    // Declaramos una variable filter ocmo un objeto vacío para poder llenarlo luego.
+    let filter = {};
+    // Obtenemos las categorías, las almacenamos en la constante filter y dividimos las categorías por coma.
+    if(req.query.categories) {
+        filter = {category: req.query.categories.split(',')}
+    }
+    // Creamos una instancia de Product y filtramos según la/s categoría/s.
+    const productList = await Product.find(filter)
+                                     .populate('category'); // Poblamos el campo category con la data de su model.
     // Si se produce un error.
     if(!productList) {
         res.status(500).json({success: false})
