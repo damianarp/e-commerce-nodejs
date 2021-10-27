@@ -49,11 +49,11 @@ router.get(`/get/count`, async (req, res) => {
         .then(count => {
             res.send({
                 productCount: count
-            }).catch(err => {
-                res.status(500).send({message: 'Failed to get the product count', err})
             })
-        }
-    )
+        })
+        .catch(err => {
+            res.status(500).send({message: 'Failed to get the product count', err})
+        })
 });
 
 ////////// HTTP REQUEST POST //////////
