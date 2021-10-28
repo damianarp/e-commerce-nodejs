@@ -78,7 +78,7 @@ router.get(`/get/featured/:count`, async (req, res) => {
             res.send(productsFeatured)
         })
         .catch(err => {
-            res.status(500).send({message: 'Failed to get the featured product.', err})
+            res.status(500).send({message: 'Failed to get the featured product.', err});
         })
 });
 
