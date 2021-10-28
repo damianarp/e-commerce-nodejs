@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 const Product = require('./models/product_model');
 const cors = require('cors');
+const authJwt = require('./helpers/jwt');
 
 // Creamos la instancia de la aplicación con Express.
 const app = express();
@@ -32,6 +33,9 @@ app.use(express.urlencoded({extended: true}));
 
 // Middleware Morgan para mostrar los GET y POST en consola.
 app.use(morgan('tiny'));
+
+// Middleware authJwt para proteger la Api.
+app.use(authJwt());
 
 // Importamos las rutas.
 const productsRouter = require('./routers/products');
