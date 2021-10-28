@@ -86,7 +86,7 @@ router.get(`/get/featured/:count`, async (req, res) => {
 router.post(`/`, async (req, res) => {
     // Primero, debemos validar si el id que estamos pasando tiene el formato correcto que genera MongoDB.
     if(!mongoose.isValidObjectId(req.params.id)) {
-        return res.status(400).send('Invalid Product Id.')
+        return res.status(400).send('Invalid Format Product Id.')
     }
     // Segundo, debemos validar si la categoría del nuevo producto existe o no en la BD.
     const category = await Category.findById(req.body.category);
@@ -121,7 +121,7 @@ router.post(`/`, async (req, res) => {
 router.put('/:id', async (req, res) => {
     // Primero, debemos validar si el id que estamos pasando tiene el formato correcto que genera MongoDB.
     if(!mongoose.isValidObjectId(req.params.id)) {
-        return res.status(400).send('Invalid Product Id.')
+        return res.status(400).send('Invalid Format Product Id.')
     }
     // Segundo, debemos validar si la categoría del nuevo producto existe o no en la BD.
     const category = await Category.findById(req.body.category);
@@ -158,7 +158,7 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', (req,res) => {
     // Primero, debemos validar si el id que estamos pasando tiene el formato correcto que genera MongoDB.
     if(!mongoose.isValidObjectId(req.params.id)) {
-        return res.status(400).send('Invalid Product Id.')
+        return res.status(400).send('Invalid Format Product Id.')
     }
     // Encontramos el producto por el id y lo eliminamos.
     Product.findByIdAndRemove(req.params.id)

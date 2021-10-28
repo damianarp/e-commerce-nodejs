@@ -59,7 +59,7 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
     // Primero, debemos validar si el id que estamos pasando tiene el formato correcto que genera MongoDB.
     if(!mongoose.isValidObjectId(req.params.id)) {
-        return res.status(400).send('Invalid Category Id.')
+        return res.status(400).send('Invalid Format Category Id.')
     }
     // Creamos una instancia de Category, buscamos por el id y actualizamos los campos.
     const categoryUpdated = await Category.findByIdAndUpdate(
@@ -82,7 +82,7 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', (req,res) => {
     // Primero, debemos validar si el id que estamos pasando tiene el formato correcto que genera MongoDB.
     if(!mongoose.isValidObjectId(req.params.id)) {
-        return res.status(400).send('Invalid Category Id.')
+        return res.status(400).send('Invalid Format Category Id.')
     }
     // Encontramos la categoría por el id y la eliminamos.
     Category.findByIdAndRemove(req.params.id)

@@ -41,6 +41,22 @@ router.get(`/:id`, async (req, res) => {
     res.status(200).send(user);
 });
 
+////////// HTTP REQUEST GET PARA OBTENER ESTADÍSTICAS //////////
+// Obtención de cantidad de usuarios.
+// En vez de manejar el get con una promesa lo manejamos con async-await.
+router.get(`/get/count`, async (req, res) => {
+    // Creamos una instancia de User y contamos los documentos que contiene.
+    await User.countDocuments()
+        .then(count => {
+            res.send({
+                userCount: count
+            })
+        })
+        .catch(err => {
+            res.status(500).send({message: 'Failed to get the user count', err})
+        })
+});
+
 ////////// HTTP REQUEST POST //////////
 // Manejamos el post con un async-await.
 router.post('/', async (req, res) => {
@@ -119,6 +135,32 @@ router.post('/register', async (req, res) => {
     if(!user) return res.status(500).send('The user cannot be registered.');
     // Si no se produce ningún error.
     res.status(200).send(user);
+});
+
+////////// HTTP REQUEST DELETE //////////
+// Manejamos el delete con una promesa (para hacerlo diferente al async-await).
+router.delete('/:id', (req,res) => {
+    // Primero, debemos validar si el id que estamos pasando tiene el formato correcto que genera MongoDB.
+    if(!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).send('Invalid Format User Id.')
+    }
+    // Encontramos el usuario por el id y lo eliminamos.
+    User.findByIdAndRemove(req.params.id)
+        .then(user => {
+            // Si encuentra un usuario.
+            if(user) {
+                return res.status(200).send(`The user '${user.name}' has been deleted!`);
+            } else {
+                // Si no encuentra el usuario.
+                return res.status(400).send('User not found!');
+            }
+        })
+        .catch(err => {
+            return res.status(500).json({
+                success: false,
+                error: err
+            });
+        });
 });
 
 // Exportamos el módulo
