@@ -10,7 +10,8 @@ function authJwt() {
     // Retornamos expressJwt y le pasamos opciones.
     return expressJwt({
         secret,
-        algorithms: ['HS256']
+        algorithms: ['HS256'],
+        isRevoked: isRevoked // separa a los admins de los users comunes.
     }).unless({
         path: [
             // Exluimos todas las rutas que comiencen con /api/v1/products usando expresiones regulares para que no nos de un error de autenticación (y los métodos que queremos excluir en la autenticación, por ejemplo GET y OPTIONS).
@@ -21,6 +22,17 @@ function authJwt() {
             `${api}/users/register`
         ]
     })
+}
+
+// Método para saber si un usuario es admin o no.
+// Payload es la data que viene en el token.
+async function isRevoked(req, payload, done) {
+    // Si no hay un admin en la data del token
+    if(!payload.isAdmin) {
+        done(null, true); // Rechaza el token.
+    }
+    // Si hay un admin en la data del token.
+    done(); 
 }
 
 // Exportamos el módulo con el método authJwt().

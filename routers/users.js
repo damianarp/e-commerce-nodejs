@@ -82,8 +82,9 @@ router.post('/login', async (req, res) => {
         // Generamos el token para que lo use en el frontend y pueda autenticarse en la API.
         const token = jwt.sign(
             {
+                // Cargamos el token con el id de usuario y so es admin o no.
                 userId  : user.id,
-                isAdmin : user.isAdmin
+                isAdmin : user.isAdmin 
             },
             secret, // secret definido en .env.
             {expiresIn: '1d'} // Tiempo de duración del token. Ejemplo: 1 día.
