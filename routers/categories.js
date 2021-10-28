@@ -25,7 +25,7 @@ router.get(`/`, async (req, res) => {
 router.get(`/:id`, async (req, res) => {
     // Primero, debemos validar si el id que estamos pasando tiene el formato correcto que genera MongoDB.
     if(!mongoose.isValidObjectId(req.params.id)) {
-        return res.status(400).send('Invalid Category Id.')
+        return res.status(400).send('Invalid Format Category Id.')
     }
     // Creamos una instancia de Category y buscamos a través del id.
     const category = await Category.findById(req.params.id);

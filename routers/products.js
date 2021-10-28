@@ -35,7 +35,7 @@ router.get(`/`, async (req, res) => {
 router.get(`/:id`, async (req, res) => {
     // Primero, debemos validar si el id que estamos pasando tiene el formato correcto que genera MongoDB.
     if(!mongoose.isValidObjectId(req.params.id)) {
-        return res.status(400).send('Invalid Product Id.')
+        return res.status(400).send('Invalid Format Product Id.')
     }
     // Creamos una instancia de Product y buscamos a través del id.
     const product = await Product.findById(req.params.id)

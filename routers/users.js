@@ -2,6 +2,7 @@
 const {User} = require('../models/user_model');
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const mongoose = require('mongoose');
 
 // Creamos la ruta.
 const router = express.Router();
@@ -9,7 +10,8 @@ const router = express.Router();
 ////////// PETICIÓN GET //////////
 // En vez de manejar el get con una promesa lo manejamos con async-await.
 router.get(`/`, async (req, res) => {
-    const userList = await User.find();
+    const userList = await User.find()
+        .select('-passwordHash'); // Excluimos el passwordHash.
 
     // Si se produce un error.
     if(!userList) {
@@ -17,6 +19,25 @@ router.get(`/`, async (req, res) => {
     }
     // Si todo sale bien. Obtenemos la lista de usuarios.
     res.send(userList);
+});
+
+////////// HTTP REQUEST GET PARA UN USUARIO //////////
+// Obtención de un usuario a través de su id.
+// En vez de manejar el get con una promesa lo manejamos con async-await.
+router.get(`/:id`, async (req, res) => {
+    // Primero, debemos validar si el id que estamos pasando tiene el formato correcto que genera MongoDB.
+    if(!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).send('Invalid Format User Id.')
+    }
+    // Creamos una instancia de User y buscamos a través del id.
+    const user = await User.findById(req.params.id)
+        .select('-passwordHash'); // Excluimos el passwordHash.;
+    // Si se produce un error.
+    if(!user) {
+        return res.status(404).send('The user with given ID was not found.');
+    }
+    // Si todo sale bien. Obtenemos la categoría.
+    res.status(200).send(user);
 });
 
 ////////// HTTP REQUEST POST //////////
