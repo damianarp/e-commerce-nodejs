@@ -42,7 +42,7 @@ router.get(`/:id`, async (req, res) => {
                                  .populate('category');
     // Si se produce un error.
     if(!product) {
-        return res.status(404).send('The product with given ID was not found.');
+        return res.status(400).send('The product with given ID was not found.');
     }
     // Si todo sale bien. Obtenemos el producto.
     res.status(200).send(product);
@@ -168,7 +168,7 @@ router.delete('/:id', (req,res) => {
                 return res.status(200).send(`The product '${product.name}' has been deleted!`);
             } else {
                 // Si no encuentra el producto.
-                return res.status(404).send('Product not found!');
+                return res.status(400).send('Product not found!');
             }
         })
         .catch(err => {

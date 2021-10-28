@@ -31,7 +31,7 @@ router.get(`/:id`, async (req, res) => {
     const category = await Category.findById(req.params.id);
     // Si se produce un error.
     if(!category) {
-        return res.status(404).send('The category with given ID was not found.');
+        return res.status(400).send('The category with given ID was not found.');
     }
     // Si todo sale bien. Obtenemos la categoría.
     res.status(200).send(category);
@@ -92,7 +92,7 @@ router.delete('/:id', (req,res) => {
                 return res.status(200).send(`The category '${category.name}' has been deleted!`);
             } else {
                 // Si no encuentra la categoría
-                return res.status(404).send('Category not found!');
+                return res.status(400).send('Category not found!');
             }
         })
         .catch(err => {
