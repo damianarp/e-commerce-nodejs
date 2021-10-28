@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const Product = require('./models/product_model');
 const cors = require('cors');
 const authJwt = require('./helpers/jwt');
+const errorHandler = require('./helpers/error-handler');
 
 // Creamos la instancia de la aplicación con Express.
 const app = express();
@@ -36,6 +37,9 @@ app.use(morgan('tiny'));
 
 // Middleware authJwt para proteger la Api.
 app.use(authJwt());
+
+// Middleware para el manejo de errores en la API.
+app.use(errorHandler);
 
 // Importamos las rutas.
 const productsRouter = require('./routers/products');
