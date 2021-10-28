@@ -1,6 +1,7 @@
 // Importaciones necesarias
 const {User} = require('../models/user_model');
 const express = require('express');
+const bcrypt = require('bcryptjs');
 
 // Creamos la ruta.
 const router = express.Router();
@@ -25,7 +26,7 @@ router.post('/', async (req, res) => {
     let user = new User({
         name        : req.body.name,
         email       : req.body.email,
-        passwordHash: req.body.passwordHash,
+        passwordHash: bcrypt.hashSync(req.body.password, 10),
         phone       : req.body.phone,
         isAdmin     : req.body.isAdmin,
         street      : req.body.street,
