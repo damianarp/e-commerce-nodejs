@@ -83,7 +83,54 @@ router.post(`/`, async (req, res) => {
     if(!order) return res.status(500).send('The order cannot be created.');
     // Si no se produce ningún error.
     res.status(200).send(order);
-})
+});
+
+////////// HTTP REQUEST PUT //////////
+// Manejamos el put con un async-await.
+router.put('/:id', async (req, res) => {
+    // Primero, debemos validar si el id que estamos pasando tiene el formato correcto que genera MongoDB.
+    if(!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).send('Invalid Format Order Id.')
+    }
+    // Creamos una instancia de Order, buscamos por el id y actualizamos los campos.
+    const orderUpdated = await Order.findByIdAndUpdate(
+        req.params.id,
+        {
+            status: req.body.status
+        },
+        {new: true} // Al hacer el put devuelve la data nueva.
+    );
+    // Si se produce algún error.
+    if(!orderUpdated) return res.status(500).send('The order cannot be updated.');
+    // Si no se produce ningún error.
+    res.status(200).send(orderUpdated);
+});
+
+////////// HTTP REQUEST DELETE //////////
+// Manejamos el delete con un async-await.
+router.delete('/:id', (req,res) => {
+    // Primero, debemos validar si el id que estamos pasando tiene el formato correcto que genera MongoDB.
+    if(!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).send('Invalid Format Order Id.')
+    }
+    // Encontramos la orden por el id y la eliminamos.
+    Order.findByIdAndRemove(req.params.id)
+        .then(order => {
+            // Si encuentra una orden.
+            if(order) {
+                return res.status(200).send(`The order with Id: '${order._id}' has been deleted!`);
+            } else {
+                // Si no encuentra la orden.
+                return res.status(400).send('Order not found!');
+            }
+        })
+        .catch(err => {
+            return res.status(500).json({
+                success: false,
+                error: err
+            });
+        });
+});
 
 // Exportamos el módulo
 module.exports = router;
