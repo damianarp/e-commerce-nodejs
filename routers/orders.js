@@ -2,14 +2,17 @@
 const {Order} = require('../models/order_model');
 const express = require('express');
 const { OrderItem } = require('../models/order-item_model');
+const mongoose = require('mongoose');
 
 // Creamos la ruta.
 const router = express.Router();
 
 ////////// HTTP REQUEST GET //////////
-// En vez de manejar el get con una promesa lo manejamos con async-await.
+// Manejamos el get con async-await.
 router.get(`/`, async (req, res) => {
-    const orderList = await Order.find();
+    const orderList = await Order.find()
+                                 .populate('user', 'name') // Poblamos el user con el nombre.
+                                 .sort({'dateOrdered': -1}); // Ordenamos por fecha de creación de la orden desde la más nueva a la más antigua.
 
     // Si se produce un error.
     if(!orderList) {
@@ -19,7 +22,31 @@ router.get(`/`, async (req, res) => {
     res.send(orderList);
 });
 
+////////// HTTP REQUEST GET PARA UNA ORDEN //////////
+// Manejamos el get con async-await.
+router.get(`/:id`, async (req, res) => {
+    // Primero, debemos validar si el id que estamos pasando tiene el formato correcto que genera MongoDB.
+    if(!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).send('Invalid Format Order Id.')
+    }
+    // Creamos una instancia de Order y buscamos a través del id.
+    const order = await Order.findById(req.params.id)
+                                .populate('user', 'name') // Poblamos el campo user con el nombre.
+                                .populate({
+                                    path: 'orderItems', populate: {
+                                        path: 'product', populate: 'category'
+                                    }
+                                }); // Poblamos el campo orderItems con los items de la orden. Como es una array de items, para ello, le pasamos el path orderItems y poblamos el campo product (pasandole el path product para poder también poblar el campo category que esta conteniendo).
+    // Si se produce un error.
+    if(!order) {
+        return res.status(400).send('The order with given ID was not found.');
+    }
+    // Si todo sale bien. Obtenemos la orden.
+    res.status(200).send(order);
+});
+
 ////////// HTTP REQUEST POST ORDER //////////
+// Manejamos el get con async-await.
 router.post(`/`, async (req, res) => {
     // Primero debemos crear una instancia de OrderItem para recolectar los ids del arreglo de productos con el método map(), para luego poder adjuntarlos a la instancia de Order.
     // Como return newOrderItem._id retorna dos promesas (a causa de los 2 async-await), podemos manejar una de ellas con un Promise.all()
