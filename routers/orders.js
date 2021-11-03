@@ -77,6 +77,25 @@ router.get(`/get/count`, async (req, res) => {
         })
 });
 
+////////// HTTP REQUEST GET PARA MOSTRAR LAS VENTAS POR USUARIO //////////
+// Manejamos el get con async-await.
+router.get(`/get/userorders/:userid`, async (req, res) => {
+    const userOrderList = await Order.find({user: req.params.userid})
+                                .populate('user', 'name') // Poblamos el campo user con el nombre.
+                                .populate({
+                                    path: 'orderItems', populate: {
+                                        path: 'product', populate: 'category'
+                                    }
+                                }) // Poblamos el campo orderItems con los items de la orden. Como es una array de items, para ello, le pasamos el path orderItems y poblamos el campo product (pasandole el path product para poder también poblar el campo category que esta conteniendo).
+                                .sort({'dateOrdered': -1}); // Ordenamos por fecha de creación de la orden desde la más nueva a la más antigua.
+    // Si se produce un error.
+    if(!userOrderList) {
+        res.status(500).json({success: false})
+    }
+    // Si todo sale bien. Obtenemos la lista de órdenes por usuario.
+    res.send(userOrderList);
+});
+
 ////////// HTTP REQUEST POST ORDER //////////
 // Manejamos el get con async-await.
 router.post(`/`, async (req, res) => {
