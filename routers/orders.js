@@ -64,7 +64,18 @@ router.post(`/`, async (req, res) => {
     // Manejamos la promesa restante, para ellos declaramos una nueva constante orderItemsIdsResolved y le pasamos la promesa de la constante orderItemsIds.
     const orderItemsIdsResolved = await orderItemsIds;
 
-    // Creamos una instancia de Order.
+    // Declaramos una constante totalPrices para calcular el precio total de la orden desde la BD. Para ello, recorremos en el array todos los orderItemsIdsResolved con un map() para retornar los precios de cada producto de la orden.
+    const totalPrices = await Promise.all(orderItemsIdsResolved.map( async (orderItemId) => {
+        const orderItem = await OrderItem.findById(orderItemId).populate('product', 'price');
+        // Declaramos una variable totalPrice y le pasamos el precio del producto del item de la orden por la cantidad de ese producto.
+        const totalPrice = orderItem.product.price * orderItem.quantity;
+        // Retornamos el precio total de un item de la orden.
+        return totalPrice;
+    }))
+    // Declaramos una constante para sumar los precios totales de cada item de la orden, con valor inicial como 0.
+    const totalPrice = totalPrices.reduce((a,b) => a + b,  0);
+
+    // Creamos una instancia de Order para generar la orden con toda la data.
     let order = new Order({
         orderItems       : orderItemsIdsResolved,
         shippingAddress1 : req.body.shippingAddress1,
@@ -74,7 +85,7 @@ router.post(`/`, async (req, res) => {
         country          : req.body.country,
         phone            : req.body.phone,
         status           : req.body.status,
-        totalPrice       : req.body.totalPrice,
+        totalPrice       : totalPrice,
         user             : req.body.user
     })
     // Guardamos la orden en la BD y la manejamos con un async-await.
