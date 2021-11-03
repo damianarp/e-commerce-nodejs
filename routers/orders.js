@@ -45,6 +45,38 @@ router.get(`/:id`, async (req, res) => {
     res.status(200).send(order);
 });
 
+////////// HTTP REQUEST GET PARA MOSTRAR LAS VENTAS TOTALES //////////
+// Manejamos el get con async-await.
+router.get(`/get/totalsales`, async (req, res) => {
+    // Creamos una instancia de Order y le pasamos el método aggregate de mongoose para poder computar los datos de todos los documentos en un único resultado.
+    const totalSales = await Order.aggregate([
+        // Agrupamos los campos según el parámetro totalPrice en una variable totalsales, sumamos todos los totalPrice, y le pasamos un id nulo, ya que mongoose necesita especificar un id (aunque sea nulo) para retornar un objeto en un grupo.
+        {$group: {_id: null, totalsales: {$sum: '$totalPrice'}}}
+    ])
+    // Si se produce un error.
+    if(!totalSales) {
+        return res.status(400).send('The total sales order cannot be generated.');
+    }
+    // Si todo sale bien. Obtenemos las ventas totales. El método pop() permite que solo obtengamos el campo totalsales del array.
+    res.status(200).send({totalsales: totalSales.pop().totalsales});
+});
+
+////////// HTTP REQUEST GET PARA OBTENER LA CANTIDAD DE VENTAS //////////
+// Obtención de cantidad de ventas.
+// Manejamos el get con async-await.
+router.get(`/get/count`, async (req, res) => {
+    // Creamos una instancia de Order y contamos los documentos que contiene.
+    await Order.countDocuments()
+        .then(count => {
+            res.send({
+                orderCount: count
+            })
+        })
+        .catch(err => {
+            res.status(500).send({message: 'Failed to get the order count', err})
+        })
+});
+
 ////////// HTTP REQUEST POST ORDER //////////
 // Manejamos el get con async-await.
 router.post(`/`, async (req, res) => {
