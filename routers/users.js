@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken');
 // Creamos la ruta.
 const router = express.Router();
 
-////////// PETICIÓN GET //////////
+////////// HTTP REQUEST GET //////////
 // En vez de manejar el get con una promesa lo manejamos con async-await.
 router.get(`/`, async (req, res) => {
     const userList = await User.find()

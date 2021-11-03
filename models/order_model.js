@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 // Definimos un schema.
 const orderSchema = mongoose.Schema ({
     // Cremos un array de orderItems.
-    oderItems: [{
+    orderItems: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'OrderItem',
         required: true
