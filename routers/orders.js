@@ -113,11 +113,14 @@ router.delete('/:id', (req,res) => {
     if(!mongoose.isValidObjectId(req.params.id)) {
         return res.status(400).send('Invalid Format Order Id.')
     }
-    // Encontramos la orden por el id y la eliminamos.
+    // Encontramos la orden por el id y la eliminamos, pero antes recorremos el array de la ordenItems con un map() para obtener los ids de los items y poder borrarlos también.
     Order.findByIdAndRemove(req.params.id)
-        .then(order => {
+        .then(async order => {
             // Si encuentra una orden.
             if(order) {
+                await order.orderItems.map(async orderItem => {
+                    await OrderItem.findByIdAndRemove(orderItem)
+                })
                 return res.status(200).send(`The order with Id: '${order._id}' has been deleted!`);
             } else {
                 // Si no encuentra la orden.
