@@ -129,9 +129,7 @@ router.post(`/`, uploadOptions.single('image'), async (req, res) => {
     // Chequeamos si hay una imagen en el request.
     const file = req.file;
     // Si se produce un error.
-    if(!file) {
-        return res.status(400).send('No image in the request.')
-    }
+    if(!file) return res.status(400).send('No image in the request.');
     // Si todo sale bien. Creamos una instancia de Product.
     // Primero, declaramos una constante para el fileName.
     const fileName = req.file.filename;
@@ -160,7 +158,7 @@ router.post(`/`, uploadOptions.single('image'), async (req, res) => {
 
 ////////// HTTP REQUEST PUT //////////
 // Manejamos el put con un async-await.
-router.put('/:id', async (req, res) => {
+router.put('/:id', uploadOptions.single('image'), async (req, res) => {
     // Primero, debemos validar si el id que estamos pasando tiene el formato correcto que genera MongoDB.
     if(!mongoose.isValidObjectId(req.params.id)) {
         return res.status(400).send('Invalid Format Product Id.')
@@ -168,17 +166,35 @@ router.put('/:id', async (req, res) => {
     // Segundo, debemos validar si la categoría del nuevo producto existe o no en la BD.
     const category = await Category.findById(req.body.category);
     // Si se produce un error.
-    if(!category) {
-        return res.status(400).send('Invalid Category.')
+    if(!category) return res.status(400).send('Invalid Category.');
+
+    // Tercero, debemos validar si el producto existe o no en la BD.
+    const product = await Product.findById(req.params.id);
+    // Si se produce un error.
+    if(!product) return res.status(400).send('The product must contain a image.');
+
+    // Chequeamos si hay una imagen en el request.
+    const file = req.file;
+    let imagePath;
+    if(file) {
+        // Si existe una imagen nueva.
+        // Primero, declaramos una constante para el nuevo fileName.
+        const fileName = file.filename;
+        // Segundo, declaramos una constante para la ruta http://localhost:3000/public/uploads/
+        const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`;
+        imagePath = `${basePath}${fileName}`;
+    } else {
+        // Si no existe una imagen. Mantenemos la imagen que estaba.
+        imagePath = product.image;
     }
     // Si todo sale bien. Creamos una instancia de Product.
-    const productUpdated = await Product.findByIdAndUpdate(
+    const updatedProduct = await Product.findByIdAndUpdate(
         req.params.id,
         {
             name            : req.body.name,
             description     : req.body.description,
             richDescription : req.body.richDescription,
-            image           : req.body.image,
+            image           : imagePath,
             brand           : req.body.brand,
             price           : req.body.price,
             category        : req.body.category,
@@ -190,9 +206,9 @@ router.put('/:id', async (req, res) => {
         {new: true} // Al hacer el put devuelve la data nueva.
     );
     // Si se produce algún error.
-    if(!productUpdated) return res.status(500).send('The product cannot be updated.');
+    if(!updatedProduct) return res.status(500).send('The product cannot be updated.');
     // Si no se produce ningún error.
-    res.status(200).send(productUpdated);
+    res.status(200).send(updatedProduct);
 });
 
 ////////// HTTP REQUEST DELETE //////////
