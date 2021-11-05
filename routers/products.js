@@ -3,9 +3,41 @@ const express = require('express');
 const {Product} = require('../models/product_model');
 const {Category} = require('../models/category_model');
 const mongoose = require('mongoose');
+const multer = require('multer');
 
 // Creamos la ruta.
 const router = express.Router();
+
+////////// UPLOAD IMAGES //////////
+// Definimos los tipos de extensiones de los archivos.
+const FILE_TYPE_MAP = {
+    'image/png': 'png',
+    'image/jpg': 'jpg',
+    'image/jpeg': 'jpeg'
+}
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        // Validamos si el archivo se subió o no.
+        const isValid = FILE_TYPE_MAP[file.mimetype];
+        // Creamos una nueva instancia de Error.
+        let uploadError = new Error('Invalid Image Type.');
+        // Si la imagen es válida.
+        if(isValid) {
+            uploadError = null;
+        }
+        cb(uploadError, 'public/uploads');
+    },
+    filename: function (req, file, cb) {
+        // Configuramos el nombre de los archivos, reemplazando los espacios entre palabras por -.
+        const fileName = file.originalname.split(' ').join('-');
+        // Configuramos la extension del archivo con la lista de extensiones definidas en FILE_TYPE_MAP.
+        const extension = FILE_TYPE_MAP[file.mimetype];
+        // Retornamos el callback con el nombre del archivo-fecha.extension.
+        cb(null, `${fileName}-${Date.now()}.${extension}`);
+    }
+  })
+  
+  const uploadOptions = multer({ storage: storage })
 
 ////////// HTTP REQUEST GET LISTA DE PRODUCTOS //////////
 // En vez de manejar el get con una promesa lo manejamos con async-await.
@@ -83,7 +115,7 @@ router.get(`/get/featured/:count`, async (req, res) => {
 });
 
 ////////// HTTP REQUEST POST //////////
-router.post(`/`, async (req, res) => {
+router.post(`/`, uploadOptions.single('image'), async (req, res) => {
     // Primero, debemos validar si el id que estamos pasando tiene el formato correcto que genera MongoDB.
     if(!mongoose.isValidObjectId(req.params.id)) {
         return res.status(400).send('Invalid Format Product Id.')
@@ -94,12 +126,22 @@ router.post(`/`, async (req, res) => {
     if(!category) {
         return res.status(400).send('Invalid Category.')
     }
+    // Chequeamos si hay una imagen en el request.
+    const file = req.file;
+    // Si se produce un error.
+    if(!file) {
+        return res.status(400).send('No image in the request.')
+    }
     // Si todo sale bien. Creamos una instancia de Product.
+    // Primero, declaramos una constante para el fileName.
+    const fileName = req.file.filename;
+    // Segundo, declaramos una constante para la ruta http://localhost:3000/public/uploads/
+    const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`;
     let product = new Product({
         name            : req.body.name,
         description     : req.body.description,
         richDescription : req.body.richDescription,
-        image           : req.body.image,
+        image           : `${basePath}${fileName}`, //http://localhost:3000/public/uploads/image-2333727273
         brand           : req.body.brand,
         price           : req.body.price,
         category        : req.body.category,
