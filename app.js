@@ -12,7 +12,6 @@ const errorHandler = require('./helpers/error-handler');
 const app = express();
 
 ////////// HABILITAR CORS //////////
-
 app.use(cors());
 // Cualquier tipo de HTTP Request (GET, POST, PUT, DELETE)
 app.options('*', cors());

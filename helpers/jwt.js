@@ -16,9 +16,10 @@ function authJwt() {
         path: [
             // Exluimos las rutas que deseemos usando expresiones regulares para que no nos de un error de autenticación (y los métodos que queremos excluir en la autenticación, por ejemplo GET y OPTIONS).
             // Además excluimos el login y el register de usuarios.
-            {url: /\/public\/uploads\/(.*)/, methods: ['GET', 'OPTIONS']},
-            {url: /\/api\/v1\/products\/(.*)/, methods: ['GET', 'OPTIONS']},
-            {url: /\/api\/v1\/categories\/(.*)/, methods: ['GET', 'OPTIONS']},
+            {url: /\/public\/uploads(.*)/, methods: ['GET', 'OPTIONS']},
+            {url: /\/api\/v1\/products(.*)/, methods: ['GET', 'OPTIONS']},
+            {url: /\/api\/v1\/categories(.*)/, methods: ['GET', 'OPTIONS']},
+            {url: /\/api\/v1\/orders(.*)/, methods: ['GET', 'OPTIONS']},
             `${api}/users/login`,
             `${api}/users/register`
         ]
