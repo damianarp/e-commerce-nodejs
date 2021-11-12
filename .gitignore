@@ -8,6 +8,7 @@ node_modules/
 
 # production
 /build
+public/uploads/
 
 # misc
 .DS_Store
