@@ -22,7 +22,7 @@ app.options('*', cors());
 ////////// CONEXIÓN A MONGODB //////////
 
 // Conectamos con mongoose a través del módulo config.
-mongoose.connect(process.env.CONNECTION_STRING, {dbname: 'eshop-db'})
+mongoose.connect(process.env.CONNECTION_STRING, {dbname: process.env.DB_NAME})
     .then(() => console.log('MongoDB Connection is ready.'))
     .catch(err => console.log('Could not connect to MongoDB.', err));
 
@@ -63,9 +63,9 @@ app.use(`${api}/users`, usersRouter); // http://localhost:3000/api/v1/users
 ////////// CONFIGURACIÓN DEL PUERTO DE EXPRESS //////////
 
 // Configuramos el puerto para correr el servicio con Express.
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
 // Escuchamos el puerto a través de nuestra instancia de Express.
-app.listen(port, () => {
-    console.log(`Server is running http://localhost:${port}`);
+app.listen(PORT, () => {
+    console.log(`Server is running http://localhost:${PORT}`);
 }); 
