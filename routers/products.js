@@ -12,9 +12,10 @@ const router = express.Router();
 // Definimos los tipos de extensiones de los archivos.
 const FILE_TYPE_MAP = {
     'image/png': 'png',
-    'image/jpg': 'jpg',
-    'image/jpeg': 'jpeg'
-}
+    'image/jpeg': 'jpeg',
+    'image/jpg': 'jpg'
+};
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         // Validamos si el archivo se subió o no.
@@ -173,9 +174,11 @@ router.put('/:id', uploadOptions.single('image'), async (req, res) => {
     // Si se produce un error.
     if(!product) return res.status(400).send('The product must contain a image.');
 
-    // Chequeamos si hay una imagen en el request.
+    // Declaramos una variable file que contenga el archivo del request.
     const file = req.file;
+    // Declaramos una variable para la imágen.
     let imagePath;
+    // Chequeamos
     if(file) {
         // Si existe una imagen nueva.
         // Primero, declaramos una constante para el nuevo fileName.
@@ -210,6 +213,46 @@ router.put('/:id', uploadOptions.single('image'), async (req, res) => {
     // Si no se produce ningún error.
     res.status(200).send(updatedProduct);
 });
+
+////////// HTTP REQUEST PUT PARA GALERIA DE IMÁGENES //////////
+// Manejamos el put con un async-await el update de imagenes de la gallería (hasta 10 imágenes).
+router.put('/gallery-images/:id', uploadOptions.array('images', 10), async (req, res) => {
+    // Primero, debemos validar si el id que estamos pasando tiene el formato correcto que genera MongoDB.
+    if(!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).send('Invalid Format Product Id.')
+    }
+    // Segundo, debemos validar si el producto existe o no en la BD.
+    const product = await Product.findById(req.params.id);
+    // Si se produce un error.
+    if(!product) return res.status(400).send('The product must contain unless 1 image.');
+    // Declaramos una variable files que contenga los archivos del request.
+    const files = req.files;
+    // Declaramos un array de imágenes y lo inicializamos vacío.
+    let imagesPaths = [];
+    // Declaramos una constante para la ruta http://localhost:3000/public/uploads/
+    const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`;
+    // Chequeamos si existen files.
+    if(files) {
+        // Recorremos los archivos con el método map() para ver si existen imágenes nuevas.
+        files.map(file => {
+            // Insertamos los archivos dentro del array imagesPaths con su basePath y su fileName.
+            imagesPaths.push(`${basePath}${file.filename}`)
+        })
+    } 
+    // Si todo sale bien. Creamos una instancia de Product.
+    const updatedProduct = await Product.findByIdAndUpdate(
+        req.params.id,
+        {
+            images: imagesPaths
+        },
+        {new: true} // Al hacer el put devuelve la data nueva.
+    );
+    // Si se produce algún error.
+    if(!updatedProduct) return res.status(500).send('The gallery cannot be updated.');
+    // Si no se produce ningún error.
+    res.status(200).send(updatedProduct);
+})
+
 
 ////////// HTTP REQUEST DELETE //////////
 // Manejamos el delete con una promesa (para hacerlo diferente al async-await).
