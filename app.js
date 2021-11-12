@@ -38,6 +38,9 @@ app.use(morgan('tiny'));
 // Middleware authJwt para proteger la Api.
 app.use(authJwt());
 
+// Middleware para hacer estática la siguiente ruta.
+app.use('/public/uploads', express.static(__dirname + '/public/uploads'));
+
 // Middleware para el manejo de errores en la API.
 app.use(errorHandler);
 

@@ -14,8 +14,9 @@ function authJwt() {
         isRevoked: isRevoked // separa a los admins de los users comunes.
     }).unless({
         path: [
-            // Exluimos todas las rutas que comiencen con /api/v1/products usando expresiones regulares para que no nos de un error de autenticación (y los métodos que queremos excluir en la autenticación, por ejemplo GET y OPTIONS).
+            // Exluimos las rutas que deseemos usando expresiones regulares para que no nos de un error de autenticación (y los métodos que queremos excluir en la autenticación, por ejemplo GET y OPTIONS).
             // Además excluimos el login y el register de usuarios.
+            {url: /\/public\/uploads\/(.*)/, methods: ['GET', 'OPTIONS']},
             {url: /\/api\/v1\/products\/(.*)/, methods: ['GET', 'OPTIONS']},
             {url: /\/api\/v1\/categories\/(.*)/, methods: ['GET', 'OPTIONS']},
             `${api}/users/login`,
